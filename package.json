@@ -24,6 +24,8 @@
     "webpack-glob-entries": "^1.0.1"
   },
   "scripts": {
-    "bundle": "webpack"
+    "bundle": "webpack",
+    "test:normal": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/normal.csv src/normal.test.ts",
+    "test:spike": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/spike.csv src/spike.test.ts"
   }
 }
