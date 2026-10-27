@@ -27,6 +27,7 @@
     "bundle": "webpack",
     "test:normal": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/normal.csv src/normal.test.ts",
     "test:spike": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/spike.csv src/spike.test.ts",
-    "test:burst": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/burst-100.csv src/burst-100.test.ts"
+    "test:burst": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/bom.csv src/bom.test.ts",
+    "test:bom": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/bom.csv src/bom.test.ts"
   }
 }

@@ -10,21 +10,21 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
 const statusCounter = new Counter("api_status");
 
-// 1 VU = 1 request. Semua VU start bersamaan, jadi 100 QR dibuat serentak.
-const BURST_VUS = Number(__ENV.BURST_VUS || 100);
+// 1 VU = 1 request. Semua VU start bersamaan untuk membom endpoint serentak.
+const BOM_VUS = Number(__ENV.BOM_VUS || __ENV.BURST_VUS || 5);
 
 export const options: Options = {
   scenarios: {
-    burst_100_qris: {
+    bom_test_qris: {
       executor: "per-vu-iterations",
-      vus: BURST_VUS,
-      iterations: 1, // tiap VU hanya kirim 1 request
+      vus: BOM_VUS,
+      iterations: 1, // Tiap VU hanya kirim 1 request serentak
       maxDuration: "2m",
       gracefulStop: "30s",
     },
   },
   thresholds: {
-    // Fokus cuma pada error create QR, bukan latency
+    // Fokus utama pada error create QR
     http_req_failed: ["rate<0.01"], // Error rate < 1%
   },
 };
@@ -63,7 +63,7 @@ function generateSignature(merchantId: string, externalId: string): string {
 
 export default function (): void {
   // __VU + __ITER menjamin externalId unik walau request dikirim di milidetik yang sama
-  const externalId = `BURST-${Date.now()}-${__VU}-${__ITER}`;
+  const externalId = `BOM-${Date.now()}-${__VU}-${__ITER}`;
   const signature = generateSignature(MERCHANT_ID, externalId);
 
   const payload = JSON.stringify({
@@ -85,16 +85,19 @@ export default function (): void {
 
   statusCounter.add(1, { status: String(res.status) });
 
-  // Hanya log request yang benar-benar gagal (bukan yang sekadar lambat)
+  const durationMs = Math.round(res.timings.duration);
+
+  // 1. Log Error jika request gagal / status bukan 200
   if (res.status !== 200 || res.error) {
     const reason = res.error ? "REQUEST_ERROR" : "HTTP_ERROR";
-
     console.log(
-      `[ERROR] reason=${reason} externalId=${externalId} status=${
-        res.status
-      } duration=${Math.round(res.timings.duration)}ms error=${
-        res.error
-      } error_code=${res.error_code} body=${res.body}`,
+      `[ERROR] reason=${reason} externalId=${externalId} status=${res.status} duration=${durationMs}ms error=${res.error} error_code=${res.error_code} body=${res.body}`,
+    );
+  }
+  // 2. Warning jika sukses tapi durasi lebih dari 1 detik (> 1000ms)
+  else if (durationMs > 1000) {
+    console.log(
+      `[WARN] SLOW_RESPONSE (>1s) externalId=${externalId} status=${res.status} duration=${durationMs}ms`,
     );
   }
 
@@ -105,7 +108,7 @@ export default function (): void {
 
 export function handleSummary(data: any): Record<string, string> {
   return {
-    "logs/burst-100.html": htmlReport(data),
+    "logs/bom.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }
