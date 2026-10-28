@@ -28,6 +28,9 @@
     "test:normal": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/normal.csv src/normal.test.ts",
     "test:spike": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/spike.csv src/spike.test.ts",
     "test:burst": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/bom.csv src/bom.test.ts",
-    "test:bom": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/bom.csv src/bom.test.ts"
+    "test:bom": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/bom.csv src/bom.test.ts",
+    "test:qris-100rps": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/qris-100rps.csv src/qris-100rps.test.ts",
+    "test:constant": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/qris-100rps.csv src/qris-100rps.test.ts",
+    "test:qris": "set -a && . ./.env && set +a && mkdir -p logs && k6 run --out csv=logs/qris.csv src/qris.test.ts"
   }
 }
