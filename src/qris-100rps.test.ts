@@ -15,9 +15,9 @@ export const options: Options = {
   scenarios: {
     qris_100_rps: {
       executor: "constant-arrival-rate",
-      rate: 100,
-      timeUnit: "1s",
-      duration: "5m",
+      rate: 100,    // 100 qris creation
+      timeUnit: "1s", // per detik
+      duration: "5m", // jalan selama 5 menit total gatu itung aja
       preAllocatedVUs: 100,
       maxVUs: 300,
     },
